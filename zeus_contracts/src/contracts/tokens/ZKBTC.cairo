@@ -12,7 +12,7 @@ pub mod ZKBTC {
     use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::{ ContractAddress, ClassHash };
     use starknet::get_caller_address;
-    use starknet::get_contract_address;
+    // use starknet::get_contract_address;
     use starknet::get_block_timestamp;
 
     // use zeroable::Zeroable;
@@ -21,29 +21,32 @@ pub mod ZKBTC {
 
     use starknet::storage::{
         Map,
-        Vec,
-        VecTrait,
-        MutableVecTrait,
+        // Vec,
+        // VecTrait,
+        // MutableVecTrait,
         StorageMapReadAccess,
         StorageMapWriteAccess,
         StoragePointerReadAccess,
         StoragePointerWriteAccess,
-        StoragePathEntry
+        // StoragePathEntry
     };
 
     
     // Import local modules
     use crate::constants::token_constants::{
-        ZKBTC_NAME, ZKBTC_SYMBOL, ZKBTC_DECIMALS,
-        MAX_SUPPLY, MINTER_ROLE, BURNER_ROLE, VAULT_ROLE,
+        //ZKBTC_NAME, ZKBTC_SYMBOL, ZKBTC_DECIMALS,
+        // MAX_SUPPLY, 
+        // MINTER_ROLE, BURNER_ROLE, VAULT_ROLE,
         MINT_FEE_BPS, BURN_FEE_BPS, MAX_FEE_BPS,
         MINT_CAP_PER_TX, BURN_CAP_PER_TX, DAILY_MINT_CAP
     };
     use crate::errors::token_errors::{
-        MINTING_NOT_ALLOWED, BURNING_NOT_ALLOWED,
+        // MINTING_NOT_ALLOWED, BURNING_NOT_ALLOWED,
         EXCEEDS_MAX_SUPPLY, EXCEEDS_MINT_CAP, EXCEEDS_BURN_CAP,
-        EXCEEDS_DAILY_MINT_CAP, INVALID_FEE_BPS, FEE_EXCEEDS_MAX,
-        INSUFFICIENT_BALANCE, UNAUTHORIZED, ENVELOPED_PAUSED
+        EXCEEDS_DAILY_MINT_CAP, 
+        // INVALID_FEE_BPS, 
+        FEE_EXCEEDS_MAX,
+        INSUFFICIENT_BALANCE, UNAUTHORIZED, //ENVELOPED_PAUSED
     };
     use crate::structs::token_structs::*;
     use crate::event_structs::token_events::{
@@ -119,10 +122,10 @@ pub mod ZKBTC {
         
         // Custom Storage
         decimals: u8,
-        mint_limits: Map::<ContractAddress, MintLimit>,
+        mint_limits: Map<ContractAddress, MintLimit>,
         fee_config: FeeConfig,
-        whitelisted_bridges: Map::<ContractAddress, bool>,
-        bridge_mint_requests: Map::<felt252, BridgeMintRequest>,
+        whitelisted_bridges: Map<ContractAddress, bool>,
+        bridge_mint_requests: Map<felt252, BridgeMintRequest>,
         total_supply_cap: u256,
         max_supply: u256,
         mint_tx_counter: u64
@@ -164,6 +167,12 @@ pub mod ZKBTC {
 
 
     const ADMIN_ROLE: felt252 = selector!("ADMIN_ROLE");
+    const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
+    const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
+    const VAULT_ROLE: felt252 = selector!("VAULT_ROLE");
+
+
+
 
     
     #[constructor]
