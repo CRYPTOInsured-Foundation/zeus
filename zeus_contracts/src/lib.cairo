@@ -1,36 +1,43 @@
 pub mod constants {
     pub mod token_constants;
     pub mod swap_constants;
+    pub mod bitcoin_constants;
 }
 pub mod errors { 
     pub mod token_errors;
     pub mod swap_errors;
+    pub mod bitcoin_errors;
 }
 pub mod enums {
     pub mod swap_enums;
+    pub mod bitcoin_enums;
 }
 pub mod structs {
     pub mod token_structs;
     pub mod swap_structs;
+    pub mod bitcoin_structs;
 }
 pub mod interfaces {
     pub mod i_zkbtc;
     pub mod i_swap_escrow;
+    pub mod i_btc_vault;
 }
 pub mod event_structs {
     pub mod token_events;
     pub mod swap_events;
+    pub mod bitcoin_events;
 }
 pub mod utils {
     pub mod token_utils;
     pub mod swap_utils;
+    pub mod bitcoin_utils;
 }
 // mod libraries;
 
 pub mod contracts {
     mod core {
 //         mod ZKAtomicSwapVerifier;
-//         mod BTCVault;
+        pub mod BTCVault;
         pub mod SwapEscrow;
 //         mod ZKOrderBook;
     }
