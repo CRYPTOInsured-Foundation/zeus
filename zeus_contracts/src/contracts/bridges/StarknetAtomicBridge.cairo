@@ -6,13 +6,14 @@ pub mod StarknetAtomicBridge {
         get_caller_address,
         get_block_timestamp,
         get_contract_address,
-        get_tx_info
+        // get_tx_info
     };
 
     use starknet::storage::{
         Map,
         Vec,
         VecTrait,
+        MutableVecTrait,
         StorageMapReadAccess,
         StorageMapWriteAccess,
         StoragePointerReadAccess,
@@ -40,12 +41,12 @@ pub mod StarknetAtomicBridge {
     use crate::interfaces::i_starknet_atomic_bridge::IStarknetAtomicBridge;
     use crate::interfaces::i_zkbtc::IZKBTCDispatcher;
     use crate::interfaces::i_zkbtc::IZKBTCDispatcherTrait;
-    use crate::interfaces::i_swap_escrow::ISwapEscrowDispatcher;
-    use crate::interfaces::i_swap_escrow::ISwapEscrowDispatcherTrait;
+   // use crate::interfaces::i_swap_escrow::ISwapEscrowDispatcher;
+    //use crate::interfaces::i_swap_escrow::ISwapEscrowDispatcherTrait;
     use crate::interfaces::i_btc_vault::IBTCVaultDispatcher;
     use crate::interfaces::i_btc_vault::IBTCVaultDispatcherTrait;
     use crate::interfaces::i_zk_atomic_swap_verifier::IZKAtomicSwapVerifierDispatcher;
-    use crate::interfaces::i_zk_atomic_swap_verifier::IZKAtomicSwapVerifierDispatcherTrait;
+   // use crate::interfaces::i_zk_atomic_swap_verifier::IZKAtomicSwapVerifierDispatcherTrait;
     use crate::utils::bridge_utils::*;
     
     // OpenZeppelin components
@@ -95,6 +96,7 @@ pub mod StarknetAtomicBridge {
         swap_escrow: ContractAddress,
         zk_verifier: ContractAddress,
         zkbtc_token: ContractAddress,
+        strk_address: ContractAddress,
         
         // Bridge swaps
         swaps: Map<felt252, AtomicBridgeSwap>,
@@ -129,9 +131,9 @@ pub mod StarknetAtomicBridge {
         proof_counter: u64,
         
         // Paused state
-        paused: bool,
-        pause_reason: felt252,
-        paused_at: u64,
+        // paused: bool,
+        // pause_reason: felt252,
+        // paused_at: u64,
     }
     
     #[event]
@@ -176,6 +178,7 @@ pub mod StarknetAtomicBridge {
         swap_escrow: ContractAddress,
         zk_verifier: ContractAddress,
         zkbtc_token: ContractAddress,
+        strk_address: ContractAddress
         // initial_relayers: Array<ContractAddress>
     ) {
         // Initialize Ownable
@@ -192,6 +195,7 @@ pub mod StarknetAtomicBridge {
         self.swap_escrow.write(swap_escrow);
         self.zk_verifier.write(zk_verifier);
         self.zkbtc_token.write(zkbtc_token);
+        self.strk_address.write(strk_address);
         
         // Initialize relayers
         // let mut i = 0;
@@ -244,9 +248,9 @@ pub mod StarknetAtomicBridge {
         // Initialize counters
         self.swap_counter.write(0);
         self.proof_counter.write(0);
-        self.paused.write(false);
-        self.pause_reason.write(0);
-        self.paused_at.write(0);
+        // self.paused.write(false);
+        // self.pause_reason.write(0);
+        // self.paused_at.write(0);
     }
     
     #[abi(embed_v0)]
@@ -261,7 +265,8 @@ pub mod StarknetAtomicBridge {
             timelock: u64
         ) -> felt252 {
             // Check if bridge is paused
-            assert(!self.paused.read(), BRIDGE_PAUSED);
+            // assert(!self.paused.read(), BRIDGE_PAUSED);
+            self.pausable.assert_not_paused();
             
             // Validate inputs
             assert(bridge_type == BRIDGE_TYPE_BTC_TO_STRK || bridge_type == BRIDGE_TYPE_STRK_TO_BTC, 
@@ -328,14 +333,14 @@ pub mod StarknetAtomicBridge {
             // user_swaps.append(swap_id);
             // self.user_swaps.write(caller, user_swaps);
 
-            let mut user_swaps: Array<felt252> = array![];
-
-            let len: u64 = self.user_swaps.entry(caller).len();
+            self.user_swaps.entry(caller).push(swap_id);
             
             // Add to pending swaps
-            let mut pending = self.pending_swaps.read();
-            pending.append(swap_id);
-            self.pending_swaps.write(pending);
+            // let mut pending = self.pending_swaps.read();
+            // pending.append(swap_id);
+            // self.pending_swaps.write(pending);
+
+            self.pending_swaps.push(swap_id);
             
             // Update user info
             user_info.total_swaps += 1;
@@ -373,7 +378,8 @@ pub mod StarknetAtomicBridge {
         
         fn fund_swap(ref self: ContractState, swap_id: felt252) -> bool {
             // Check if bridge is paused
-            assert(!self.paused.read(), BRIDGE_PAUSED);
+            // assert(!self.paused.read(), BRIDGE_PAUSED);
+            self.pausable.assert_not_paused();
             
             let mut swap = self.get_swap_by_id(swap_id);
             let caller = get_caller_address();
@@ -385,7 +391,7 @@ pub mod StarknetAtomicBridge {
             assert(current_time < swap.expires_at, SWAP_EXPIRED);
             
             // Calculate fees
-            let (protocol_fee, relayer_fee) = calculate_bridge_fee(
+            let (protocol_fee, _relayer_fee) = calculate_bridge_fee(
                 swap.amount_btc,
                 self.fee_config.read().protocol_fee_bps,
                 self.fee_config.read().relayer_fee_bps,
@@ -396,15 +402,15 @@ pub mod StarknetAtomicBridge {
             // Handle based on bridge type
             if swap.bridge_type == BRIDGE_TYPE_BTC_TO_STRK {
                 // User needs to deposit ZKBTC (representing BTC)
-                let zkbtc_dispatcher = IZKBTCDispatcher { 
+                let zkbtc_dispatcher: IZKBTCDispatcher = IZKBTCDispatcher { 
                     contract_address: self.zkbtc_token.read() 
                 };
                 
                 // Transfer ZKBTC from user to bridge
-                zkbtc_dispatcher.transfer_from(caller, get_contract_address(), swap.amount_btc);
+                zkbtc_dispatcher._transfer_from(caller, get_contract_address(), swap.amount_btc);
                 
                 // Update BTC vault
-                let vault_dispatcher = IBTCVaultDispatcher { 
+                let vault_dispatcher: IBTCVaultDispatcher = IBTCVaultDispatcher { 
                     contract_address: self.btc_vault.read() 
                 };
                 
@@ -414,8 +420,8 @@ pub mod StarknetAtomicBridge {
                 
             } else {
                 // User needs to deposit STRK
-                let strk_dispatcher = IERC20Dispatcher { 
-                    contract_address: self.swap_escrow.read() 
+                let strk_dispatcher: IERC20Dispatcher = IERC20Dispatcher { 
+                    contract_address: self.strk_address.read() 
                 };
                 
                 // Transfer STRK from user to swap escrow
@@ -424,14 +430,14 @@ pub mod StarknetAtomicBridge {
             
             // Collect fees
             if protocol_fee > 0 {
-                let fee_collector = self.fee_config.read().fee_collector;
+                let _fee_collector = self.fee_config.read().fee_collector;
                 // Transfer fee to collector (simplified)
             }
             
             // Update swap status
             swap.status = BRIDGE_STATUS_ACTIVE;
             swap.funded_at = current_time;
-            self.swaps.write(swap_id, swap);
+            self.swaps.write(swap_id, swap.clone());
             
             // Emit event
             self.emit(BridgeSwapFunded {
@@ -460,7 +466,8 @@ pub mod StarknetAtomicBridge {
             btc_txid: felt252
         ) -> bool {
             // Check if bridge is paused
-            assert(!self.paused.read(), BRIDGE_PAUSED);
+            // assert(!self.paused.read(), BRIDGE_PAUSED);
+            self.pausable.assert_not_paused();
             
             let mut swap = self.get_swap_by_id(swap_id);
             let caller = get_caller_address();
@@ -475,7 +482,7 @@ pub mod StarknetAtomicBridge {
             assert(validate_secret(secret, swap.hashlock), INVALID_SECRET);
             
             // Verify with ZK verifier
-            let verifier_dispatcher = IZKAtomicSwapVerifierDispatcher { 
+            let _verifier_dispatcher: IZKAtomicSwapVerifierDispatcher = IZKAtomicSwapVerifierDispatcher { 
                 contract_address: self.zk_verifier.read() 
             };
             
@@ -493,15 +500,15 @@ pub mod StarknetAtomicBridge {
             // Handle based on bridge type
             if swap.bridge_type == BRIDGE_TYPE_BTC_TO_STRK {
                 // Release STRK to counterparty (initiator gets BTC, counterparty gets STRK)
-                let strk_dispatcher = IERC20Dispatcher { 
-                    contract_address: self.swap_escrow.read() 
+                let strk_dispatcher: IERC20Dispatcher = IERC20Dispatcher { 
+                    contract_address: self.strk_address.read() 
                 };
                 
                 // Transfer STRK from escrow to counterparty
                 strk_dispatcher.transfer(swap.counterparty, swap.amount_strk);
                 
                 // Update BTC vault - mark UTXO as spent
-                let vault_dispatcher = IBTCVaultDispatcher { 
+                let vault_dispatcher: IBTCVaultDispatcher = IBTCVaultDispatcher { 
                     contract_address: self.btc_vault.read() 
                 };
                 
@@ -509,12 +516,12 @@ pub mod StarknetAtomicBridge {
                 
             } else {
                 // Release BTC (ZKBTC) to counterparty (initiator gets STRK, counterparty gets BTC)
-                let zkbtc_dispatcher = IZKBTCDispatcher { 
+                let zkbtc_dispatcher: IZKBTCDispatcher = IZKBTCDispatcher { 
                     contract_address: self.zkbtc_token.read() 
                 };
                 
                 // Transfer ZKBTC from bridge to counterparty
-                zkbtc_dispatcher.transfer(swap.counterparty, swap.amount_btc);
+                zkbtc_dispatcher._transfer(swap.counterparty, swap.amount_btc);
             }
             
             // Update swap
@@ -523,7 +530,7 @@ pub mod StarknetAtomicBridge {
             swap.secret_revealed = true;
             swap.completed_at = current_time;
             swap.btc_txid = btc_txid;
-            self.swaps.write(swap_id, swap);
+            self.swaps.write(swap_id, swap.clone());
             
             // Update user info
             let mut initiator_info = self.user_info.read(swap.initiator);
@@ -572,7 +579,8 @@ pub mod StarknetAtomicBridge {
         
         fn refund_swap(ref self: ContractState, swap_id: felt252) -> bool {
             // Check if bridge is paused
-            assert(!self.paused.read(), BRIDGE_PAUSED);
+            // assert(!self.paused.read(), BRIDGE_PAUSED);
+            self.pausable.assert_not_paused();
             
             let mut swap = self.get_swap_by_id(swap_id);
             let caller = get_caller_address();
@@ -586,14 +594,14 @@ pub mod StarknetAtomicBridge {
             // Handle refund based on bridge type
             if swap.bridge_type == BRIDGE_TYPE_BTC_TO_STRK {
                 // Refund ZKBTC to initiator
-                let zkbtc_dispatcher = IZKBTCDispatcher { 
+                let zkbtc_dispatcher: IZKBTCDispatcher = IZKBTCDispatcher { 
                     contract_address: self.zkbtc_token.read() 
                 };
                 
-                zkbtc_dispatcher.transfer(swap.initiator, swap.amount_btc);
+                zkbtc_dispatcher._transfer(swap.initiator, swap.amount_btc);
                 
                 // Unlock UTXO in vault
-                let vault_dispatcher = IBTCVaultDispatcher { 
+                let vault_dispatcher: IBTCVaultDispatcher = IBTCVaultDispatcher { 
                     contract_address: self.btc_vault.read() 
                 };
                 
@@ -601,8 +609,8 @@ pub mod StarknetAtomicBridge {
                 
             } else {
                 // Refund STRK to initiator
-                let strk_dispatcher = IERC20Dispatcher { 
-                    contract_address: self.swap_escrow.read() 
+                let strk_dispatcher: IERC20Dispatcher = IERC20Dispatcher { 
+                    contract_address: self.strk_address.read() 
                 };
                 
                 strk_dispatcher.transfer(swap.initiator, swap.amount_strk);
@@ -610,7 +618,7 @@ pub mod StarknetAtomicBridge {
             
             // Update swap
             swap.status = BRIDGE_STATUS_REFUNDED;
-            self.swaps.write(swap_id, swap);
+            self.swaps.write(swap_id, swap.clone());
             
             // Update user info
             let mut user_info = self.user_info.read(swap.initiator);
@@ -653,7 +661,8 @@ pub mod StarknetAtomicBridge {
             relayer_fee_recipient: ContractAddress
         ) -> bool {
             // Check if bridge is paused
-            assert(!self.paused.read(), BRIDGE_PAUSED);
+            // assert(!self.paused.read(), BRIDGE_PAUSED);
+            self.pausable.assert_not_paused();
             
             // Check caller is whitelisted relayer
             let caller = get_caller_address();
@@ -681,8 +690,8 @@ pub mod StarknetAtomicBridge {
             // Complete the swap (similar to complete_swap but with relayer fee)
             if swap.bridge_type == BRIDGE_TYPE_BTC_TO_STRK {
                 // Release STRK to counterparty minus fees
-                let strk_dispatcher = IERC20Dispatcher { 
-                    contract_address: self.swap_escrow.read() 
+                let strk_dispatcher: IERC20Dispatcher = IERC20Dispatcher { 
+                    contract_address: self.strk_address.read() 
                 };
                 
                 let amount_after_fees = swap.amount_strk - protocol_fee - relayer_fee;
@@ -694,29 +703,29 @@ pub mod StarknetAtomicBridge {
                 }
                 
                 // Update BTC vault
-                let vault_dispatcher = IBTCVaultDispatcher { 
+                let vault_dispatcher: IBTCVaultDispatcher = IBTCVaultDispatcher { 
                     contract_address: self.btc_vault.read() 
                 };
                 vault_dispatcher.spend_utxo(swap_id.into(), btc_txid);
                 
             } else {
                 // Release ZKBTC to counterparty minus fees
-                let zkbtc_dispatcher = IZKBTCDispatcher { 
+                let zkbtc_dispatcher: IZKBTCDispatcher = IZKBTCDispatcher { 
                     contract_address: self.zkbtc_token.read() 
                 };
                 
                 let amount_after_fees = swap.amount_btc - protocol_fee - relayer_fee;
-                zkbtc_dispatcher.transfer(swap.counterparty, amount_after_fees);
+                zkbtc_dispatcher._transfer(swap.counterparty, amount_after_fees);
                 
                 // Pay relayer fee
                 if relayer_fee > 0 {
-                    zkbtc_dispatcher.transfer(relayer_fee_recipient, relayer_fee);
+                    zkbtc_dispatcher._transfer(relayer_fee_recipient, relayer_fee);
                 }
             }
             
             // Collect protocol fee
             if protocol_fee > 0 {
-                let fee_collector = self.fee_config.read().fee_collector;
+                let _fee_collector = self.fee_config.read().fee_collector;
                 // Fee already collected via amount reduction
                 let mut stats = self.stats.read();
                 stats.total_fees_collected += protocol_fee;
@@ -729,7 +738,7 @@ pub mod StarknetAtomicBridge {
             swap.secret_revealed = true;
             swap.completed_at = current_time;
             swap.btc_txid = btc_txid;
-            self.swaps.write(swap_id, swap);
+            self.swaps.write(swap_id, swap.clone());
             
             // Update relayer stats
             let mut relayer_info = self.relayers.read(caller);
@@ -764,7 +773,8 @@ pub mod StarknetAtomicBridge {
             proof_data: Array<felt252>
         ) -> felt252 {
             // Check if bridge is paused
-            assert(!self.paused.read(), BRIDGE_PAUSED);
+            // assert(!self.paused.read(), BRIDGE_PAUSED);
+            self.pausable.assert_not_paused();
             
             let caller = get_caller_address();
             let current_time = get_block_timestamp();
@@ -790,12 +800,13 @@ pub mod StarknetAtomicBridge {
                 valid_until: current_time + PROOF_VALIDITY_WINDOW,
             };
             
-            self.proofs.write(proof_id, proof);
+            self.proofs.write(proof_id, proof.clone());
             
             // Add to swap's proofs
-            let mut swap_proofs = self.swap_proofs.read(swap_id);
-            swap_proofs.append(proof_id);
-            self.swap_proofs.write(swap_id, swap_proofs);
+            // let mut swap_proofs = self.swap_proofs.read(swap_id);
+            // swap_proofs.append(proof_id);
+            // self.swap_proofs.write(swap_id, swap_proofs);
+            self.swap_proofs.entry(swap_id).push(proof_id);
             
             // Update proof counter
             let counter = self.proof_counter.read() + 1;
@@ -820,19 +831,20 @@ pub mod StarknetAtomicBridge {
             expected_result: bool
         ) -> bool {
             // Check if bridge is paused
-            assert(!self.paused.read(), BRIDGE_PAUSED);
+            // assert(!self.paused.read(), BRIDGE_PAUSED);
+            self.pausable.assert_not_paused();
             
             // Check caller has verifier role
             assert(self.accesscontrol.has_role(VERIFIER_ROLE, get_caller_address()), 
                    UNAUTHORIZED_RELAYER);
             
             let mut proof = self.proofs.read(proof_id);
-            assert(!proof.proof_id.is_zero(), "Proof not found");
+            assert!(!proof.proof_id.is_zero(), "Proof not found");
             assert(get_block_timestamp() < proof.valid_until, PROOF_TOO_OLD);
             
             // Update proof
             proof.verified_at = get_block_timestamp();
-            self.proofs.write(proof_id, proof);
+            self.proofs.write(proof_id, proof.clone());
             
             // Emit event
             self.emit(BridgeProofVerified {
@@ -848,7 +860,8 @@ pub mod StarknetAtomicBridge {
         
         fn retry_swap(ref self: ContractState, swap_id: felt252) -> bool {
             // Check if bridge is paused
-            assert(!self.paused.read(), BRIDGE_PAUSED);
+            // assert(!self.paused.read(), BRIDGE_PAUSED);
+            self.pausable.assert_not_paused();
             
             let mut swap = self.get_swap_by_id(swap_id);
             let caller = get_caller_address();
@@ -870,7 +883,7 @@ pub mod StarknetAtomicBridge {
             swap.status = BRIDGE_STATUS_PENDING;
             swap.retry_count += 1;
             swap.expires_at = current_time + MIN_SWAP_DURATION;
-            self.swaps.write(swap_id, swap);
+            self.swaps.write(swap_id, swap.clone());
             
             // Update retry info
             let retry_info = RetryInfo {
@@ -902,42 +915,64 @@ pub mod StarknetAtomicBridge {
         }
         
         fn get_user_swaps(self: @ContractState, user: ContractAddress, offset: u64, limit: u64) -> Array<AtomicBridgeSwapResponse> {
-            let user_swaps = self.user_swaps.read(user);
-            let mut result = ArrayTrait::new();
+            // let user_swaps = self.user_swaps.read(user);
+            // let mut result = ArrayTrait::new();
+
+            let mut user_swaps: Array<felt252> = array![];
+            let mut result: Array<AtomicBridgeSwapResponse> = array![];
+
+            let len: u64 = self.user_swaps.entry(user).len();
+
+            for i in 0..len {
+                let each: felt252 = self.user_swaps.entry(user).at(i).read();
+
+                user_swaps.append(each);
+            }
             
             let start = offset;
-            let end = if offset + limit > user_swaps.len() {
-                user_swaps.len()
+            let end = if offset + limit > len {
+                len
             } else {
                 offset + limit
             };
             
-            let mut i = start;
-            while i < end {
-                let swap_id = user_swaps.get(i);
+            let mut j: u32 = start.try_into().unwrap();
+            while j < end.try_into().unwrap() {
+                let swap_id = *user_swaps.at(j);
                 let swap = self.swaps.read(swap_id);
                 result.append(bridge_swap_to_response(swap));
-                i += 1;
+                j += 1;
             };
             
             result
         }
         
         fn get_pending_swaps(self: @ContractState, offset: u64, limit: u64) -> Array<AtomicBridgeSwapResponse> {
-            let pending = self.pending_swaps.read();
-            let mut result = ArrayTrait::new();
+           
+           
+            // let pending = self.pending_swaps.read();
+            let mut pending: Array<felt252> = array![];
+            let mut result: Array<AtomicBridgeSwapResponse> = array![];
             let current_time = get_block_timestamp();
+
+            let len: u64 = self.pending_swaps.len();
+
+            for i in 0..len {
+                let each: felt252 = self.pending_swaps.at(i).read();
+
+                pending.append(each);
+            }
             
             let start = offset;
-            let end = if offset + limit > pending.len() {
-                pending.len()
+            let end = if offset + limit > len {
+                len
             } else {
                 offset + limit
             };
             
-            let mut i = start;
-            while i < end {
-                let swap_id = pending.get(i);
+            let mut j = start.try_into().unwrap();
+            while j < end.try_into().unwrap() {
+                let swap_id = *pending.at(j);
                 let swap = self.swaps.read(swap_id);
                 
                 // Only return active pending swaps
@@ -945,7 +980,7 @@ pub mod StarknetAtomicBridge {
                     result.append(bridge_swap_to_response(swap));
                 }
                 
-                i += 1;
+                j += 1;
             };
             
             result
@@ -972,9 +1007,10 @@ pub mod StarknetAtomicBridge {
         
         // Admin functions
         fn whitelist_relayer(ref self: ContractState, relayer: ContractAddress, fee_bps: u64) {
-            self.accesscontrol.assert_has_role(ADMIN_ROLE, get_caller_address());
+
+            assert!(self.accesscontrol.has_role(ADMIN_ROLE, get_caller_address()), "Caller is not an Admin");
             
-            assert(!relayer.is_zero(), "Invalid relayer");
+            assert!(!relayer.is_zero(), "Invalid relayer");
             assert(fee_bps <= MAX_BRIDGE_FEE_BPS, FEE_TOO_HIGH);
             
             self.relayers.write(relayer, BridgeRelayer {
@@ -998,7 +1034,8 @@ pub mod StarknetAtomicBridge {
         }
         
         fn remove_relayer(ref self: ContractState, relayer: ContractAddress) {
-            self.accesscontrol.assert_has_role(ADMIN_ROLE, get_caller_address());
+
+            assert!(self.accesscontrol.has_role(ADMIN_ROLE, get_caller_address()), "Caller is not an Admin");
             
             self.whitelisted_relayers.write(relayer, false);
             
@@ -1028,8 +1065,8 @@ pub mod StarknetAtomicBridge {
             
             assert(protocol_fee_bps <= MAX_BRIDGE_FEE_BPS, FEE_TOO_HIGH);
             assert(relayer_fee_bps <= MAX_BRIDGE_FEE_BPS, FEE_TOO_HIGH);
-            assert(min_fee <= max_fee, "Invalid fee range");
-            assert(!fee_collector.is_zero(), "Invalid fee collector");
+            assert!(min_fee <= max_fee, "Invalid fee range");
+            assert!(!fee_collector.is_zero(), "Invalid fee collector");
             
             self.fee_config.write(BridgeFee {
                 protocol_fee_bps: protocol_fee_bps,
@@ -1053,9 +1090,11 @@ pub mod StarknetAtomicBridge {
         fn pause_bridge(ref self: ContractState, reason: felt252) {
             self.ownable.assert_only_owner();
             
-            self.paused.write(true);
-            self.pause_reason.write(reason);
-            self.paused_at.write(get_block_timestamp());
+            // self.paused.write(true);
+            // self.pause_reason.write(reason);
+            // self.paused_at.write(get_block_timestamp());
+
+            self.pausable.pause();
             
             self.emit(BridgePaused {
                 paused_by: get_caller_address(),
@@ -1067,9 +1106,11 @@ pub mod StarknetAtomicBridge {
         fn unpause_bridge(ref self: ContractState) {
             self.ownable.assert_only_owner();
             
-            self.paused.write(false);
-            self.pause_reason.write(0);
-            self.paused_at.write(0);
+            // self.paused.write(false);
+            // self.pause_reason.write(0);
+            // self.paused_at.write(0);
+
+            self.pausable.unpause();
             
             self.emit(BridgeUnpaused {
                 unpaused_by: get_caller_address(),
@@ -1084,6 +1125,7 @@ pub mod StarknetAtomicBridge {
         ) {
             self.ownable.assert_only_owner();
             assert(!contract_address.is_zero(), INVALID_CONTRACT_ADDRESS);
+            assert!(contract_type != 'BTC_VAULT' || contract_type != 'SWAP_ESCROW' || contract_type != 'ZK_VERIFIER' || contract_type != 'ZKBTC_TOKEN' || contract_type != 'STRK_TOKEN', "Invalid Contract Type");
             
             if contract_type == 'BTC_VAULT' {
                 self.btc_vault.write(contract_address);
@@ -1093,10 +1135,10 @@ pub mod StarknetAtomicBridge {
                 self.zk_verifier.write(contract_address);
             } else if contract_type == 'ZKBTC_TOKEN' {
                 self.zkbtc_token.write(contract_address);
-            } else {
-                assert(false, "Invalid contract type");
+            }  else if contract_type == 'STRK_TOKEN' {
+                self.strk_address.write(contract_address);
             }
-            
+                     
             self.emit(ContractWhitelisted {
                 contract_address: contract_address,
                 contract_type: contract_type,
@@ -1106,22 +1148,33 @@ pub mod StarknetAtomicBridge {
         }
         
         fn cleanup_expired_swaps(ref self: ContractState) -> u64 {
-            self.accesscontrol.assert_has_role(GUARDIAN_ROLE, get_caller_address());
+            // self.accesscontrol.assert_has_role(GUARDIAN_ROLE, get_caller_address());
+            assert!(self.accesscontrol.has_role(GUARDIAN_ROLE, get_caller_address()), "Caller does not have the Guardian Role");
+
             
-            let pending = self.pending_swaps.read();
+            // let pending = self.pending_swaps.read();
+            let mut pending: Array<felt252> = array![];
+
+            let len: u64 = self.pending_swaps.len();
+
+            for i in 0..len {
+                let each: felt252 = self.pending_swaps.at(i).read();
+
+                pending.append(each);
+            };
             let current_time = get_block_timestamp();
             let mut expired_count = 0;
-            let mut new_pending = VecTrait::new();
+            // let mut new_pending: Array<felt252> = array![];
             
-            let mut i = 0;
-            while i < pending.len() {
-                let swap_id = pending.get(i);
+            let mut j: u32 = 0;
+            while j < len.try_into().unwrap() {
+                let swap_id = *pending.at(j);
                 let mut swap = self.swaps.read(swap_id);
                 
                 if swap.status == BRIDGE_STATUS_ACTIVE && current_time >= swap.expires_at {
                     // Mark as expired
                     swap.status = BRIDGE_STATUS_EXPIRED;
-                    self.swaps.write(swap_id, swap);
+                    self.swaps.write(swap_id, swap.clone());
                     
                     // Update user info
                     let mut user_info = self.user_info.read(swap.initiator);
@@ -1143,13 +1196,14 @@ pub mod StarknetAtomicBridge {
                     
                     expired_count += 1;
                 } else {
-                    new_pending.append(swap_id);
+                    // new_pending.append(swap_id);
+                    self.pending_swaps.at(j.into()).write(swap_id);
                 }
                 
-                i += 1;
+                j += 1;
             };
             
-            self.pending_swaps.write(new_pending);
+            // self.pending_swaps.write(new_pending);
             
             expired_count
         }

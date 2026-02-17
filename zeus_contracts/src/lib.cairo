@@ -70,7 +70,7 @@ pub mod contracts {
     
     pub mod bridges {
 //         mod BitcoinBridge;
-        // mod StarknetAtomicBridge;
+        pub mod StarknetAtomicBridge;
     }
     
 //     #[cfg(test)]

@@ -345,6 +345,24 @@ pub mod ZKBTC {
             // Mint tokens
             self.native_mint(to, amount, btc_txid);
         }
+
+        fn _transfer_from(
+            ref self: ContractState,
+            from: ContractAddress,
+            to: ContractAddress,
+            amount: u256
+        ) {
+            self.erc20.transfer_from(from, to, amount);
+        }
+    
+        fn _transfer(
+            ref self: ContractState,
+            recipient: ContractAddress,
+            amount: u256
+        ) {
+            self.erc20.transfer(recipient, amount);
+        }
+        
         
         fn set_fee_config(
             ref self: ContractState,
