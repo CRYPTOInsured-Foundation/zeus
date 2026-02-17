@@ -7,6 +7,19 @@ pub trait IZKBTC<TContractState> {
     fn native_mint(ref self: TContractState, to: ContractAddress, amount: u256, btc_txid: felt252);
     fn native_burn(ref self: TContractState, from: ContractAddress, amount: u256, btc_address: felt252);
     fn bridge_mint(ref self: TContractState, to: ContractAddress, amount: u256, btc_txid: felt252);
+
+    fn _transfer_from(
+        ref self: TContractState,
+        from: ContractAddress,
+        to: ContractAddress,
+        amount: u256
+    );
+
+    fn _transfer(
+        ref self: TContractState,
+        recipient: ContractAddress,
+        amount: u256
+    );    
     
     // Admin - Custom configuration
     fn set_fee_config(ref self: TContractState, mint_fee_bps: u64, burn_fee_bps: u64, fee_collector: ContractAddress);

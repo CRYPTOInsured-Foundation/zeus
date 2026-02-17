@@ -107,7 +107,7 @@ pub mod ZKAtomicSwapVerifier {
         stats: VerifierStats,
         
         // Paused state
-        paused: bool,
+        // paused: bool,
         
         // Counters
         proof_counter: u64,
@@ -192,7 +192,7 @@ pub mod ZKAtomicSwapVerifier {
         // Initialize counters
         self.proof_counter.write(0);
         self.batch_counter.write(0);
-        self.paused.write(false);
+        
     }
     
     #[abi(embed_v0)]
@@ -462,7 +462,8 @@ pub mod ZKAtomicSwapVerifier {
             commitments: Array<felt252>
         ) -> bool {
             // Check if verifier is paused
-            assert!(!self.paused.read(), "Verifier is paused");
+            // assert!(!self.paused.read(), "Verifier is paused");
+            self.pausable.assert_not_paused();
             
             // Validate commitments
             assert!(commitments.len() == 4, "Invalid commitments count");
@@ -662,7 +663,8 @@ pub mod ZKAtomicSwapVerifier {
         
         fn pause_verifier(ref self: ContractState) {
             self.ownable.assert_only_owner();
-            self.paused.write(true);
+            // self.paused.write(true);
+            self.pausable.pause();
             
             self.emit(VerifierPaused {
                 paused_by: get_caller_address(),
@@ -672,7 +674,8 @@ pub mod ZKAtomicSwapVerifier {
         
         fn unpause_verifier(ref self: ContractState) {
             self.ownable.assert_only_owner();
-            self.paused.write(false);
+            // self.paused.write(false);
+            self.pausable.unpause();
             
             self.emit(VerifierUnpaused {
                 unpaused_by: get_caller_address(),
