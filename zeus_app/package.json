@@ -9,10 +9,29 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-navigation/native": "^7.1.28",
+    "@react-navigation/stack": "^7.7.1",
+    "@starknet-react/core": "^5.0.3",
     "expo": "~54.0.33",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
-    "react-native": "0.81.5"
+    "react-dom": "^19.1.0",
+    "react-native": "0.81.5",
+    "react-native-crypto": "^2.2.1",
+    "react-native-gesture-handler": "^2.30.0",
+    "react-native-keychain": "^10.0.0",
+    "react-native-randombytes": "^3.6.2",
+    "react-native-reanimated": "^4.2.1",
+    "react-native-safe-area-context": "^5.6.2",
+    "react-native-screens": "^4.23.0",
+    "react-native-secure-storage": "^0.1.2",
+    "react-native-svg": "^15.15.3",
+    "react-native-web": "^0.21.0",
+    "react-native-worklets": "^0.7.4",
+    "react-query": "^3.39.3",
+    "sats-connect": "^4.2.1",
+    "starknet": "^9.2.1",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
