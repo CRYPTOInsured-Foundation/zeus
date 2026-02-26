@@ -1,0 +1,26 @@
+// Authorization Errors
+pub const UNAUTHORIZED: felt252 = 'UNAUTHORIZED';
+pub const INSUFFICIENT_BALANCE: felt252 = 'INSUFFICIENT_BALANCE';
+pub const INSUFFICIENT_ALLOWANCE: felt252 = 'INSUFFICIENT_ALLOWANCE';
+
+// Mint/Burn Errors
+pub const MINTING_NOT_ALLOWED: felt252 = 'MINTING_NOT_ALLOWED';
+pub const BURNING_NOT_ALLOWED: felt252 = 'BURNING_NOT_ALLOWED';
+pub const EXCEEDS_MAX_SUPPLY: felt252 = 'EXCEEDS_MAX_SUPPLY';
+pub const EXCEEDS_MINT_CAP: felt252 = 'EXCEEDS_MINT_CAP';
+pub const EXCEEDS_BURN_CAP: felt252 = 'EXCEEDS_BURN_CAP';
+pub const EXCEEDS_DAILY_MINT_CAP: felt252 = 'EXCEEDS_DAILY_MINT_CAP';
+
+// Pause Errors
+pub const ENVELOPED_PAUSED: felt252 = 'ENVELOPED_PAUSED';
+pub const ALREADY_PAUSED: felt252 = 'ALREADY_PAUSED';
+pub const NOT_PAUSED: felt252 = 'NOT_PAUSED';
+
+// Fee Errors
+pub const FEE_EXCEEDS_MAX: felt252 = 'FEE_EXCEEDS_MAX';
+pub const INVALID_FEE_BPS: felt252 = 'INVALID_FEE_BPS';
+
+// Transfer Errors
+pub const TRANSFER_FAILED: felt252 = 'TRANSFER_FAILED';
+pub const ZERO_ADDRESS: felt252 = 'ZERO_ADDRESS';
+pub const SELF_TRANSFER: felt252 = 'SELF_TRANSFER';
