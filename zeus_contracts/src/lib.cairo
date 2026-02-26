@@ -72,7 +72,7 @@ pub mod contracts {
     
     pub mod tokens {
         pub mod ZKBTC;
-//         mod ZeusShareToken;
+        pub mod ZeusGovToken;
     }
     
     pub mod bridges {
