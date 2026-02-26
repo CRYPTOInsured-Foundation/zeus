@@ -1,0 +1,1515 @@
+[
+    {
+      "type": "impl",
+      "name": "ZKOrderBookImpl",
+      "interface_name": "zeus_contracts::interfaces::i_zk_orderbook::IZKOrderBook"
+    },
+    {
+      "type": "enum",
+      "name": "core::bool",
+      "variants": [
+        {
+          "name": "False",
+          "type": "()"
+        },
+        {
+          "name": "True",
+          "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "core::integer::u256",
+      "members": [
+        {
+          "name": "low",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "high",
+          "type": "core::integer::u128"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "zeus_contracts::structs::orderbook_structs::OrderResponse",
+      "members": [
+        {
+          "name": "order_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "asset_type",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "side",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "amount_commitment",
+          "type": "core::felt252"
+        },
+        {
+          "name": "price_commitment",
+          "type": "core::felt252"
+        },
+        {
+          "name": "expiry",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "created_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "status",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "matched_amount",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "remaining_amount",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "nullifier",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "zeus_contracts::structs::orderbook_structs::MatchResponse",
+      "members": [
+        {
+          "name": "match_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "buy_order_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "sell_order_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "matched_amount",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "match_price",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "relayer",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "proof_hash",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "zeus_contracts::structs::orderbook_structs::OrderbookStats",
+      "members": [
+        {
+          "name": "total_orders",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "active_orders",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "total_matches",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "total_volume",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "total_fees_collected",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "last_match_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "last_cleanup_at",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "zeus_contracts::structs::orderbook_structs::UserOrderInfo",
+      "members": [
+        {
+          "name": "total_orders",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "active_orders",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "total_volume",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "last_order_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "blacklisted",
+          "type": "core::bool"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zeus_contracts::interfaces::i_zk_orderbook::IZKOrderBook",
+      "items": [
+        {
+          "type": "function",
+          "name": "place_order",
+          "inputs": [
+            {
+              "name": "asset_type",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "side",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "amount_commitment",
+              "type": "core::felt252"
+            },
+            {
+              "name": "price_commitment",
+              "type": "core::felt252"
+            },
+            {
+              "name": "range_proof",
+              "type": "core::array::Array::<core::felt252>"
+            },
+            {
+              "name": "expiry",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "cancel_order",
+          "inputs": [
+            {
+              "name": "order_id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "cancel_batch_orders",
+          "inputs": [
+            {
+              "name": "order_ids",
+              "type": "core::array::Array::<core::felt252>"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "match_orders",
+          "inputs": [
+            {
+              "name": "buy_order_ids",
+              "type": "core::array::Array::<core::felt252>"
+            },
+            {
+              "name": "sell_order_ids",
+              "type": "core::array::Array::<core::felt252>"
+            },
+            {
+              "name": "match_amounts",
+              "type": "core::array::Array::<core::integer::u256>"
+            },
+            {
+              "name": "match_prices",
+              "type": "core::array::Array::<core::integer::u256>"
+            },
+            {
+              "name": "zk_proof",
+              "type": "core::array::Array::<core::felt252>"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::array::Array::<core::felt252>"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "match_orders_batch",
+          "inputs": [
+            {
+              "name": "buy_order_commitments",
+              "type": "core::array::Array::<core::felt252>"
+            },
+            {
+              "name": "sell_order_commitments",
+              "type": "core::array::Array::<core::felt252>"
+            },
+            {
+              "name": "match_amounts",
+              "type": "core::array::Array::<core::integer::u256>"
+            },
+            {
+              "name": "match_prices",
+              "type": "core::array::Array::<core::integer::u256>"
+            },
+            {
+              "name": "batch_proof",
+              "type": "core::array::Array::<core::felt252>"
+            },
+            {
+              "name": "total_volume_commitment",
+              "type": "core::felt252"
+            },
+            {
+              "name": "fee_commitment",
+              "type": "core::felt252"
+            },
+            {
+              "name": "match_count",
+              "type": "core::integer::u32"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "get_order",
+          "inputs": [
+            {
+              "name": "order_id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "zeus_contracts::structs::orderbook_structs::OrderResponse"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_user_orders",
+          "inputs": [
+            {
+              "name": "user",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "offset",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "limit",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::array::Array::<zeus_contracts::structs::orderbook_structs::OrderResponse>"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_active_orders",
+          "inputs": [
+            {
+              "name": "asset_type",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "side",
+              "type": "core::integer::u8"
+            },
+            {
+              "name": "offset",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "limit",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::array::Array::<zeus_contracts::structs::orderbook_structs::OrderResponse>"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_match",
+          "inputs": [
+            {
+              "name": "match_id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "zeus_contracts::structs::orderbook_structs::MatchResponse"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_orderbook_stats",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "zeus_contracts::structs::orderbook_structs::OrderbookStats"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_user_info",
+          "inputs": [
+            {
+              "name": "user",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "zeus_contracts::structs::orderbook_structs::UserOrderInfo"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "verify_range_proof",
+          "inputs": [
+            {
+              "name": "proof",
+              "type": "core::array::Array::<core::felt252>"
+            },
+            {
+              "name": "commitment",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "verify_order_ownership",
+          "inputs": [
+            {
+              "name": "order_id",
+              "type": "core::felt252"
+            },
+            {
+              "name": "user",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "whitelist_relayer",
+          "inputs": [
+            {
+              "name": "relayer",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "fee_bps",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "remove_relayer",
+          "inputs": [
+            {
+              "name": "relayer",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "blacklist_user",
+          "inputs": [
+            {
+              "name": "user",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "whitelist_user",
+          "inputs": [
+            {
+              "name": "user",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "pause_orderbook",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "unpause_orderbook",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "cleanup_expired_orders",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "impl",
+      "name": "UpgradeableImpl",
+      "interface_name": "openzeppelin_upgrades::interface::IUpgradeable"
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_upgrades::interface::IUpgradeable",
+      "items": [
+        {
+          "type": "function",
+          "name": "upgrade",
+          "inputs": [
+            {
+              "name": "new_class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "impl",
+      "name": "OwnableImpl",
+      "interface_name": "openzeppelin_access::ownable::interface::IOwnable"
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_access::ownable::interface::IOwnable",
+      "items": [
+        {
+          "type": "function",
+          "name": "owner",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "transfer_ownership",
+          "inputs": [
+            {
+              "name": "new_owner",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "renounce_ownership",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "impl",
+      "name": "PausableImpl",
+      "interface_name": "openzeppelin_security::interface::IPausable"
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_security::interface::IPausable",
+      "items": [
+        {
+          "type": "function",
+          "name": "is_paused",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "impl",
+      "name": "AccessControlImpl",
+      "interface_name": "openzeppelin_access::accesscontrol::interface::IAccessControl"
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_access::accesscontrol::interface::IAccessControl",
+      "items": [
+        {
+          "type": "function",
+          "name": "has_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_role_admin",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "grant_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "revoke_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "renounce_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "constructor",
+      "name": "constructor",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "previous_owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "new_owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "previous_owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "new_owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "OwnershipTransferred",
+          "type": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          "kind": "nested"
+        },
+        {
+          "name": "OwnershipTransferStarted",
+          "type": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_security::pausable::PausableComponent::Paused",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_security::pausable::PausableComponent::Unpaused",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_security::pausable::PausableComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "Paused",
+          "type": "openzeppelin_security::pausable::PausableComponent::Paused",
+          "kind": "nested"
+        },
+        {
+          "name": "Unpaused",
+          "type": "openzeppelin_security::pausable::PausableComponent::Unpaused",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "sender",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "sender",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "delay",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "sender",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "previous_admin_role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "new_admin_role",
+          "type": "core::felt252",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "RoleGranted",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+          "kind": "nested"
+        },
+        {
+          "name": "RoleGrantedWithDelay",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+          "kind": "nested"
+        },
+        {
+          "name": "RoleRevoked",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+          "kind": "nested"
+        },
+        {
+          "name": "RoleAdminChanged",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_introspection::src5::SRC5Component::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Upgraded",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "Upgraded",
+          "type": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Upgraded",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::OrderPlaced",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "order_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "asset_type",
+          "type": "core::integer::u8",
+          "kind": "data"
+        },
+        {
+          "name": "side",
+          "type": "core::integer::u8",
+          "kind": "data"
+        },
+        {
+          "name": "amount_commitment",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "price_commitment",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "expiry",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "nullifier",
+          "type": "core::felt252",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::OrderMatched",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "match_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "buy_order_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "sell_order_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "matched_amount",
+          "type": "core::integer::u256",
+          "kind": "data"
+        },
+        {
+          "name": "match_price",
+          "type": "core::integer::u256",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "relayer",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::OrderCancelled",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "order_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "reason",
+          "type": "core::felt252",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::OrderExpired",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "order_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::BatchMatchExecuted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "batch_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "match_count",
+          "type": "core::integer::u32",
+          "kind": "data"
+        },
+        {
+          "name": "total_volume",
+          "type": "core::integer::u256",
+          "kind": "data"
+        },
+        {
+          "name": "proof_hash",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "relayer",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::CommitmentRevealed",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "commitment_hash",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "order_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "revealer",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::RangeProofVerified",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "proof_hash",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "min_value",
+          "type": "core::integer::u256",
+          "kind": "data"
+        },
+        {
+          "name": "max_value",
+          "type": "core::integer::u256",
+          "kind": "data"
+        },
+        {
+          "name": "verifier",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::MerkleRootUpdated",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "old_root",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "new_root",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "updated_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::RelayerWhitelisted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "relayer",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "fee_bps",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "added_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::RelayerRemoved",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "relayer",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "removed_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::OrderbookPaused",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "paused_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::OrderbookUnpaused",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "unpaused_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::UserBlacklisted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "user",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "blacklisted_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::UserWhitelisted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "user",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "whitelisted_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::orderbook_events::CleanupExecuted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "expired_orders_removed",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::contracts::core::ZKOrderBook::ZKOrderBook::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "OwnableEvent",
+          "type": "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "PausableEvent",
+          "type": "openzeppelin_security::pausable::PausableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "AccessControlEvent",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "SRC5Event",
+          "type": "openzeppelin_introspection::src5::SRC5Component::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "UpgradeableEvent",
+          "type": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "OrderPlaced",
+          "type": "zeus_contracts::event_structs::orderbook_events::OrderPlaced",
+          "kind": "nested"
+        },
+        {
+          "name": "OrderMatched",
+          "type": "zeus_contracts::event_structs::orderbook_events::OrderMatched",
+          "kind": "nested"
+        },
+        {
+          "name": "OrderCancelled",
+          "type": "zeus_contracts::event_structs::orderbook_events::OrderCancelled",
+          "kind": "nested"
+        },
+        {
+          "name": "OrderExpired",
+          "type": "zeus_contracts::event_structs::orderbook_events::OrderExpired",
+          "kind": "nested"
+        },
+        {
+          "name": "BatchMatchExecuted",
+          "type": "zeus_contracts::event_structs::orderbook_events::BatchMatchExecuted",
+          "kind": "nested"
+        },
+        {
+          "name": "CommitmentRevealed",
+          "type": "zeus_contracts::event_structs::orderbook_events::CommitmentRevealed",
+          "kind": "nested"
+        },
+        {
+          "name": "RangeProofVerified",
+          "type": "zeus_contracts::event_structs::orderbook_events::RangeProofVerified",
+          "kind": "nested"
+        },
+        {
+          "name": "MerkleRootUpdated",
+          "type": "zeus_contracts::event_structs::orderbook_events::MerkleRootUpdated",
+          "kind": "nested"
+        },
+        {
+          "name": "RelayerWhitelisted",
+          "type": "zeus_contracts::event_structs::orderbook_events::RelayerWhitelisted",
+          "kind": "nested"
+        },
+        {
+          "name": "RelayerRemoved",
+          "type": "zeus_contracts::event_structs::orderbook_events::RelayerRemoved",
+          "kind": "nested"
+        },
+        {
+          "name": "OrderbookPaused",
+          "type": "zeus_contracts::event_structs::orderbook_events::OrderbookPaused",
+          "kind": "nested"
+        },
+        {
+          "name": "OrderbookUnpaused",
+          "type": "zeus_contracts::event_structs::orderbook_events::OrderbookUnpaused",
+          "kind": "nested"
+        },
+        {
+          "name": "UserBlacklisted",
+          "type": "zeus_contracts::event_structs::orderbook_events::UserBlacklisted",
+          "kind": "nested"
+        },
+        {
+          "name": "UserWhitelisted",
+          "type": "zeus_contracts::event_structs::orderbook_events::UserWhitelisted",
+          "kind": "nested"
+        },
+        {
+          "name": "CleanupExecuted",
+          "type": "zeus_contracts::event_structs::orderbook_events::CleanupExecuted",
+          "kind": "nested"
+        }
+      ]
+    }
+  ]
