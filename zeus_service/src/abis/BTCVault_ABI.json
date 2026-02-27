@@ -1,0 +1,1467 @@
+[
+    {
+      "type": "impl",
+      "name": "BTCVaultImpl",
+      "interface_name": "zeus_contracts::interfaces::i_btc_vault::IBTCVault"
+    },
+    {
+      "type": "struct",
+      "name": "core::integer::u256",
+      "members": [
+        {
+          "name": "low",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "high",
+          "type": "core::integer::u128"
+        }
+      ]
+    },
+    {
+      "type": "enum",
+      "name": "core::bool",
+      "variants": [
+        {
+          "name": "False",
+          "type": "()"
+        },
+        {
+          "name": "True",
+          "type": "()"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "zeus_contracts::structs::bitcoin_structs::UTXOResponse",
+      "members": [
+        {
+          "name": "txid",
+          "type": "core::felt252"
+        },
+        {
+          "name": "vout",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "script_pubkey",
+          "type": "core::felt252"
+        },
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "status",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "locked_until",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "created_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "spent_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "confirmations",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "zeus_contracts::structs::bitcoin_structs::WithdrawalRequestResponse",
+      "members": [
+        {
+          "name": "request_id",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "user",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "bitcoin_address",
+          "type": "core::felt252"
+        },
+        {
+          "name": "status",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "created_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "processed_at",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "expiry",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "guardian_signatures",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "required_signatures",
+          "type": "core::integer::u8"
+        },
+        {
+          "name": "btc_txid",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "type": "struct",
+      "name": "zeus_contracts::structs::bitcoin_structs::VaultStats",
+      "members": [
+        {
+          "name": "total_btc_locked",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "total_utxos",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "total_withdrawals",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "total_withdrawal_amount",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "total_deposits",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "total_deposit_amount",
+          "type": "core::integer::u256"
+        },
+        {
+          "name": "active_swaps",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "last_updated",
+          "type": "core::integer::u64"
+        }
+      ]
+    },
+    {
+      "type": "interface",
+      "name": "zeus_contracts::interfaces::i_btc_vault::IBTCVault",
+      "items": [
+        {
+          "type": "function",
+          "name": "deposit_utxo",
+          "inputs": [
+            {
+              "name": "txid",
+              "type": "core::felt252"
+            },
+            {
+              "name": "vout",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "amount",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "script_pubkey",
+              "type": "core::felt252"
+            },
+            {
+              "name": "merkle_proof",
+              "type": "core::felt252"
+            },
+            {
+              "name": "block_height",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "block_time",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "request_withdrawal",
+          "inputs": [
+            {
+              "name": "amount",
+              "type": "core::integer::u256"
+            },
+            {
+              "name": "bitcoin_address",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "sign_withdrawal",
+          "inputs": [
+            {
+              "name": "request_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "execute_withdrawal",
+          "inputs": [
+            {
+              "name": "request_id",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "btc_txid",
+              "type": "core::felt252"
+            },
+            {
+              "name": "guardian_signatures",
+              "type": "core::array::Array::<core::felt252>"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "lock_utxo",
+          "inputs": [
+            {
+              "name": "utxo_hash",
+              "type": "core::felt252"
+            },
+            {
+              "name": "swap_id",
+              "type": "core::felt252"
+            },
+            {
+              "name": "duration",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "unlock_utxo",
+          "inputs": [
+            {
+              "name": "utxo_hash",
+              "type": "core::felt252"
+            },
+            {
+              "name": "swap_id",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "spend_utxo",
+          "inputs": [
+            {
+              "name": "utxo_hash",
+              "type": "core::felt252"
+            },
+            {
+              "name": "btc_txid",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "get_utxo",
+          "inputs": [
+            {
+              "name": "utxo_hash",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "zeus_contracts::structs::bitcoin_structs::UTXOResponse"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_withdrawal_request",
+          "inputs": [
+            {
+              "name": "request_id",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "zeus_contracts::structs::bitcoin_structs::WithdrawalRequestResponse"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_vault_stats",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "zeus_contracts::structs::bitcoin_structs::VaultStats"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_user_utxos",
+          "inputs": [
+            {
+              "name": "user",
+              "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+              "name": "offset",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "limit",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::array::Array::<zeus_contracts::structs::bitcoin_structs::UTXOResponse>"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_total_btc_locked",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u256"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "is_guardian",
+          "inputs": [
+            {
+              "name": "guardian",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_threshold",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u8"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_guardian_count",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::integer::u8"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "add_guardian",
+          "inputs": [
+            {
+              "name": "guardian",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "remove_guardian",
+          "inputs": [
+            {
+              "name": "guardian",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "set_threshold",
+          "inputs": [
+            {
+              "name": "new_threshold",
+              "type": "core::integer::u8"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "whitelist_swap_escrow",
+          "inputs": [
+            {
+              "name": "swap_escrow",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "remove_swap_escrow",
+          "inputs": [
+            {
+              "name": "swap_escrow",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "pause_vault",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "unpause_vault",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "impl",
+      "name": "UpgradeableImpl",
+      "interface_name": "openzeppelin_upgrades::interface::IUpgradeable"
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_upgrades::interface::IUpgradeable",
+      "items": [
+        {
+          "type": "function",
+          "name": "upgrade",
+          "inputs": [
+            {
+              "name": "new_class_hash",
+              "type": "core::starknet::class_hash::ClassHash"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "impl",
+      "name": "OwnableImpl",
+      "interface_name": "openzeppelin_access::ownable::interface::IOwnable"
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_access::ownable::interface::IOwnable",
+      "items": [
+        {
+          "type": "function",
+          "name": "owner",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "transfer_ownership",
+          "inputs": [
+            {
+              "name": "new_owner",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "renounce_ownership",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "impl",
+      "name": "PausableImpl",
+      "interface_name": "openzeppelin_security::interface::IPausable"
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_security::interface::IPausable",
+      "items": [
+        {
+          "type": "function",
+          "name": "is_paused",
+          "inputs": [],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        }
+      ]
+    },
+    {
+      "type": "impl",
+      "name": "AccessControlImpl",
+      "interface_name": "openzeppelin_access::accesscontrol::interface::IAccessControl"
+    },
+    {
+      "type": "interface",
+      "name": "openzeppelin_access::accesscontrol::interface::IAccessControl",
+      "items": [
+        {
+          "type": "function",
+          "name": "has_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::bool"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "get_role_admin",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::felt252"
+            }
+          ],
+          "state_mutability": "view"
+        },
+        {
+          "type": "function",
+          "name": "grant_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "revoke_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "type": "function",
+          "name": "renounce_role",
+          "inputs": [
+            {
+              "name": "role",
+              "type": "core::felt252"
+            },
+            {
+              "name": "account",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "type": "constructor",
+      "name": "constructor",
+      "inputs": [
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "zkbtc_token",
+          "type": "core::starknet::contract_address::ContractAddress"
+        },
+        {
+          "name": "initial_threshold",
+          "type": "core::integer::u8"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "previous_owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "new_owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "previous_owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        },
+        {
+          "name": "new_owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "key"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "OwnershipTransferred",
+          "type": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+          "kind": "nested"
+        },
+        {
+          "name": "OwnershipTransferStarted",
+          "type": "openzeppelin_access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_security::pausable::PausableComponent::Paused",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_security::pausable::PausableComponent::Unpaused",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_security::pausable::PausableComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "Paused",
+          "type": "openzeppelin_security::pausable::PausableComponent::Paused",
+          "kind": "nested"
+        },
+        {
+          "name": "Unpaused",
+          "type": "openzeppelin_security::pausable::PausableComponent::Unpaused",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "sender",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "sender",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "delay",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "account",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "sender",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "previous_admin_role",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "new_admin_role",
+          "type": "core::felt252",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "RoleGranted",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+          "kind": "nested"
+        },
+        {
+          "name": "RoleGrantedWithDelay",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+          "kind": "nested"
+        },
+        {
+          "name": "RoleRevoked",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+          "kind": "nested"
+        },
+        {
+          "name": "RoleAdminChanged",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_introspection::src5::SRC5Component::Event",
+      "kind": "enum",
+      "variants": []
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Upgraded",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "class_hash",
+          "type": "core::starknet::class_hash::ClassHash",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "Upgraded",
+          "type": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Upgraded",
+          "kind": "nested"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::UTXODeposited",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "utxo_hash",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "txid",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "vout",
+          "type": "core::integer::u32",
+          "kind": "data"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "owner",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "zkbtc_minted",
+          "type": "core::integer::u256",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::UTXOSpent",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "utxo_hash",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "txid",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "spent_at",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "spent_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::UTXOLocked",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "utxo_hash",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "swap_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "locked_until",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "locked_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::UTXOUnlocked",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "utxo_hash",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "swap_id",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::WithdrawalRequested",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "request_id",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "user",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "amount",
+          "type": "core::integer::u256",
+          "kind": "data"
+        },
+        {
+          "name": "bitcoin_address",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "expiry",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::WithdrawalSigned",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "request_id",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "guardian",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "signatures_count",
+          "type": "core::integer::u8",
+          "kind": "data"
+        },
+        {
+          "name": "required_signatures",
+          "type": "core::integer::u8",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::WithdrawalProcessed",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "request_id",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "btc_txid",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "processed_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::WithdrawalFailed",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "request_id",
+          "type": "core::integer::u64",
+          "kind": "data"
+        },
+        {
+          "name": "reason",
+          "type": "core::felt252",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::GuardianAdded",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "guardian",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "added_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::GuardianRemoved",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "guardian",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "removed_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::ThresholdUpdated",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "old_threshold",
+          "type": "core::integer::u8",
+          "kind": "data"
+        },
+        {
+          "name": "new_threshold",
+          "type": "core::integer::u8",
+          "kind": "data"
+        },
+        {
+          "name": "updated_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::SwapEscrowWhitelisted",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "swap_escrow",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "added_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::SwapEscrowRemoved",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "swap_escrow",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "removed_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::VaultPaused",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "paused_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::event_structs::bitcoin_events::VaultUnpaused",
+      "kind": "struct",
+      "members": [
+        {
+          "name": "unpaused_by",
+          "type": "core::starknet::contract_address::ContractAddress",
+          "kind": "data"
+        },
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64",
+          "kind": "data"
+        }
+      ]
+    },
+    {
+      "type": "event",
+      "name": "zeus_contracts::contracts::core::BTCVault::BTCVault::Event",
+      "kind": "enum",
+      "variants": [
+        {
+          "name": "OwnableEvent",
+          "type": "openzeppelin_access::ownable::ownable::OwnableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "PausableEvent",
+          "type": "openzeppelin_security::pausable::PausableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "AccessControlEvent",
+          "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "SRC5Event",
+          "type": "openzeppelin_introspection::src5::SRC5Component::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "UpgradeableEvent",
+          "type": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Event",
+          "kind": "flat"
+        },
+        {
+          "name": "UTXODeposited",
+          "type": "zeus_contracts::event_structs::bitcoin_events::UTXODeposited",
+          "kind": "nested"
+        },
+        {
+          "name": "UTXOSpent",
+          "type": "zeus_contracts::event_structs::bitcoin_events::UTXOSpent",
+          "kind": "nested"
+        },
+        {
+          "name": "UTXOLocked",
+          "type": "zeus_contracts::event_structs::bitcoin_events::UTXOLocked",
+          "kind": "nested"
+        },
+        {
+          "name": "UTXOUnlocked",
+          "type": "zeus_contracts::event_structs::bitcoin_events::UTXOUnlocked",
+          "kind": "nested"
+        },
+        {
+          "name": "WithdrawalRequested",
+          "type": "zeus_contracts::event_structs::bitcoin_events::WithdrawalRequested",
+          "kind": "nested"
+        },
+        {
+          "name": "WithdrawalSigned",
+          "type": "zeus_contracts::event_structs::bitcoin_events::WithdrawalSigned",
+          "kind": "nested"
+        },
+        {
+          "name": "WithdrawalProcessed",
+          "type": "zeus_contracts::event_structs::bitcoin_events::WithdrawalProcessed",
+          "kind": "nested"
+        },
+        {
+          "name": "WithdrawalFailed",
+          "type": "zeus_contracts::event_structs::bitcoin_events::WithdrawalFailed",
+          "kind": "nested"
+        },
+        {
+          "name": "GuardianAdded",
+          "type": "zeus_contracts::event_structs::bitcoin_events::GuardianAdded",
+          "kind": "nested"
+        },
+        {
+          "name": "GuardianRemoved",
+          "type": "zeus_contracts::event_structs::bitcoin_events::GuardianRemoved",
+          "kind": "nested"
+        },
+        {
+          "name": "ThresholdUpdated",
+          "type": "zeus_contracts::event_structs::bitcoin_events::ThresholdUpdated",
+          "kind": "nested"
+        },
+        {
+          "name": "SwapEscrowWhitelisted",
+          "type": "zeus_contracts::event_structs::bitcoin_events::SwapEscrowWhitelisted",
+          "kind": "nested"
+        },
+        {
+          "name": "SwapEscrowRemoved",
+          "type": "zeus_contracts::event_structs::bitcoin_events::SwapEscrowRemoved",
+          "kind": "nested"
+        },
+        {
+          "name": "VaultPaused",
+          "type": "zeus_contracts::event_structs::bitcoin_events::VaultPaused",
+          "kind": "nested"
+        },
+        {
+          "name": "VaultUnpaused",
+          "type": "zeus_contracts::event_structs::bitcoin_events::VaultUnpaused",
+          "kind": "nested"
+        }
+      ]
+    }
+  ]

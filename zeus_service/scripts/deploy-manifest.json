@@ -1,0 +1,39 @@
+{
+  "deployOrder": [
+    {
+      "name": "ZKAtomicSwapVerifier",
+      "path": "../zeus_contracts/target/<artifact>",
+      "constructor": ["owner"]
+    },
+    {
+      "name": "ZKBTC",
+      "path": "../zeus_contracts/target/<artifact>",
+      "constructor": ["owner", "name", "symbol", "decimals", "initial_supply", "max_supply", "fee_collector"]
+    },
+    {
+      "name": "BTCVault",
+      "path": "../zeus_contracts/target/<artifact>",
+      "constructor": ["owner", "zkbtc_token", "initial_threshold"]
+    },
+    {
+      "name": "SwapEscrow",
+      "path": "../zeus_contracts/target/<artifact>",
+      "constructor": ["owner", "fee_collector"]
+    },
+    {
+      "name": "StarknetAtomicBridge",
+      "path": "../zeus_contracts/target/<artifact>",
+      "constructor": ["owner", "btc_vault", "swap_escrow", "zk_verifier", "zkbtc_token", "strk_address"]
+    },
+    {
+      "name": "BitcoinBridge",
+      "path": "../zeus_contracts/target/<artifact>",
+      "constructor": ["owner", "btc_vault", "zk_verifier", "zkbtc_token"]
+    },
+    {
+      "name": "ZKOrderBook",
+      "path": "../zeus_contracts/target/<artifact>",
+      "constructor": ["owner"]
+    }
+  ]
+}
