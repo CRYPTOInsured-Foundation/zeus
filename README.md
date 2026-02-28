@@ -4,7 +4,6 @@
 ![Starknet](https://img.shields.io/badge/Starknet-Cairo-blue)
 ![React Native](https://img.shields.io/badge/React-Native-blueviolet)
 ![NestJS](https://img.shields.io/badge/NestJS-Backend-red)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 ZEUS is a privacy-first decentralized exchange protocol enabling completely private, trust-minimized atomic swaps between Bitcoin and Starknet assets. Unlike traditional DEXs with transparent orderbooks, ZEUS hides all trading intent, amounts, and counterparty information using zero-knowledge proofs while maintaining complete verifiability.
 
