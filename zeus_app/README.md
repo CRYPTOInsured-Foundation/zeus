@@ -238,16 +238,25 @@ zeus_app/
 ![WhatsApp Image 2026-02-28 at 10 26 13 AM](https://github.com/user-attachments/assets/cfc96b49-1b44-4899-8f0f-ccd6ee8e5a1e)
 
 ---
-## Screens:
-![WhatsApp Image 2026-02-28 at 10 11 36 AM](https://github.com/user-attachments/assets/e855de18-af05-4325-8329-337cdc6eacc3)
-![WhatsApp Image 2026-02-28 at 10 11 36 AM (1)](https://github.com/user-attachments/assets/b18b042c-9893-47df-9f63-04924021562b)
-![WhatsApp Image 2026-02-28 at 10 11 37 AM](https://github.com/user-attachments/assets/885d3392-95ff-4479-a19c-4b99c47d5102)
-![WhatsApp Image 2026-02-28 at 10 11 37 AM (1)](https://github.com/user-attachments/assets/f57d1f24-14f1-47fb-a6e7-6f5911c77df0)
-![WhatsApp Image 2026-02-28 at 10 11 37 AM (2)](https://github.com/user-attachments/assets/eed9940d-76ec-4237-bc0c-f2b6b3ea2bf3)
-![WhatsApp Image 2026-02-28 at 10 11 38 AM](https://github.com/user-attachments/assets/aade90e6-a2a3-48bb-b2e8-2952fc4122b7)
-![WhatsApp Image 2026-02-28 at 10 11 38 AM (1)](https://github.com/user-attachments/assets/1ed4f237-0075-41d0-b490-66f6b46beac4)
-![WhatsApp Image 2026-02-28 at 10 11 39 AM (1)](https://github.com/user-attachments/assets/a87c09dd-9ed5-44b5-ba46-eed276baa5cb)
-![WhatsApp Image 2026-02-28 at 10 11 39 AM](https://github.com/user-attachments/assets/9011092a-b127-467c-b688-19dee3103083)
+## 📱 Screens
+
+<table style="width: 100%; text-align: center;">
+  <tr>
+    <td width="33%"><img src="https://github.com/user-attachments/assets/e855de18-af05-4325-8329-337cdc6eacc3" alt="Screen 1" /></td>
+    <td width="33%"><img src="https://github.com/user-attachments/assets/b18b042c-9893-47df-9f63-04924021562b" alt="Screen 2" /></td>
+    <td width="33%"><img src="https://github.com/user-attachments/assets/885d3392-95ff-4479-a19c-4b99c47d5102" alt="Screen 3" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/f57d1f24-14f1-47fb-a6e7-6f5911c77df0" alt="Screen 4" /></td>
+    <td><img src="https://github.com/user-attachments/assets/eed9940d-76ec-4237-bc0c-f2b6b3ea2bf3" alt="Screen 5" /></td>
+    <td><img src="https://github.com/user-attachments/assets/aade90e6-a2a3-48bb-b2e8-2952fc4122b7" alt="Screen 6" /></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/1ed4f237-0075-41d0-b490-66f6b46beac4" alt="Screen 7" /></td>
+    <td><img src="https://github.com/user-attachments/assets/a87c09dd-9ed5-44b5-ba46-eed276baa5cb" alt="Screen 8" /></td>
+    <td><img src="https://github.com/user-attachments/assets/9011092a-b127-467c-b688-19dee3103083" alt="Screen 9" /></td>
+  </tr>
+</table>
 
 ---
 **Development tips**
