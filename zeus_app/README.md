@@ -1,4 +1,3 @@
-++ Begin Content
 # Zeus Mobile App
 
 Zero-Knowledge Encrypted Unified Swaps — a mobile-first React Native client for private, trustless BTC ↔ STRK trading. This app connects to the local `zeus_service` NestJS backend (or a deployed instance) and provides wallet-auth, real-time updates, encrypted orderbook interactions, and swap flows.
@@ -234,7 +233,23 @@ zeus_app/
     ├─ cryptoUtils.ts
     └─ zkCircuits.ts
 ```
+---
+## QR Code: 
+![WhatsApp Image 2026-02-28 at 10 26 13 AM](https://github.com/user-attachments/assets/cfc96b49-1b44-4899-8f0f-ccd6ee8e5a1e)
 
+---
+## Screens:
+![WhatsApp Image 2026-02-28 at 10 11 36 AM](https://github.com/user-attachments/assets/e855de18-af05-4325-8329-337cdc6eacc3)
+![WhatsApp Image 2026-02-28 at 10 11 36 AM (1)](https://github.com/user-attachments/assets/b18b042c-9893-47df-9f63-04924021562b)
+![WhatsApp Image 2026-02-28 at 10 11 37 AM](https://github.com/user-attachments/assets/885d3392-95ff-4479-a19c-4b99c47d5102)
+![WhatsApp Image 2026-02-28 at 10 11 37 AM (1)](https://github.com/user-attachments/assets/f57d1f24-14f1-47fb-a6e7-6f5911c77df0)
+![WhatsApp Image 2026-02-28 at 10 11 37 AM (2)](https://github.com/user-attachments/assets/eed9940d-76ec-4237-bc0c-f2b6b3ea2bf3)
+![WhatsApp Image 2026-02-28 at 10 11 38 AM](https://github.com/user-attachments/assets/aade90e6-a2a3-48bb-b2e8-2952fc4122b7)
+![WhatsApp Image 2026-02-28 at 10 11 38 AM (1)](https://github.com/user-attachments/assets/1ed4f237-0075-41d0-b490-66f6b46beac4)
+![WhatsApp Image 2026-02-28 at 10 11 39 AM (1)](https://github.com/user-attachments/assets/a87c09dd-9ed5-44b5-ba46-eed276baa5cb)
+![WhatsApp Image 2026-02-28 at 10 11 39 AM](https://github.com/user-attachments/assets/9011092a-b127-467c-b688-19dee3103083)
+
+---
 **Development tips**
 - If the app can't authenticate via wallets locally, verify the backend `zeus_service` is reachable and the `/api/auth/nonce` route returns a nonce.
 - When testing WalletConnect flows, ensure deep link / redirect URL (`zeusapp://`) is registered for native builds and that Expo/WalletConnect settings match.
@@ -244,5 +259,3 @@ zeus_app/
 
 **License & Contact**
 - See repository LICENSE (root) for terms. For questions, check the project README at the repository root.
-
-++ End Content
