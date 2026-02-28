@@ -240,6 +240,11 @@ expo start --lan
 
 # Scan QR code with Expo Go app
 ```
+---
+### QR Code:
+![WhatsApp Image 2026-02-28 at 10 26 13 AM](https://github.com/user-attachments/assets/015632ff-3a76-4f7a-9968-1027bcb17ed1)
+
+---
 
 ## 🔧 Backend Service (zeus_service)
 
