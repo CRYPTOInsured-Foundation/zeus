@@ -6,6 +6,9 @@ import SwapScreen from '@/screens/SwapScreen';
 import PortfolioScreen from '@/screens/PortfolioScreen';
 import PrivacySettings from '@/screens/PrivacySettings';
 import TransactionHistory from '@/screens/TransactionHistory';
+import WalletSettings from '@/screens/WalletSettings';
+import InboxScreen from '@/screens/InboxScreen';
+import InboxDetailScreen from '@/screens/InboxDetailScreen';
 
 const Stack = createStackNavigator();
 
@@ -24,6 +27,9 @@ const AppNavigator = () => {
       <Stack.Screen name="Portfolio" component={PortfolioScreen} />
       <Stack.Screen name="Privacy" component={PrivacySettings} />
       <Stack.Screen name="History" component={TransactionHistory} />
+      <Stack.Screen name="Inbox" component={InboxScreen} />
+      <Stack.Screen name="InboxDetail" component={InboxDetailScreen} />
+        <Stack.Screen name="WalletSettings" component={WalletSettings} />
     </Stack.Navigator>
   );
 };

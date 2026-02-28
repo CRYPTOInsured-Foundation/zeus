@@ -128,6 +128,41 @@ Routes are guarded with `ApiKeyGuard` (admin) or `JwtAuthGuard` for user actions
 - Subscribe to rooms: emit `subscribe` with `{ room: 'swap:<swapId>' }` or `market:<symbol>` or `vault:<address>`.
 - Listen for compact deltas (`swap.delta`, `order.delta`, `vault.delta`) for efficient UI updates and `notification` for full in-app messages.
 
+## Project structure (folders & key files)
+
+```
+zeus_service/
+├─ .env
+├─ package.json
+├─ README.md
+├─ scripts/
+│  └─ deploy.py (helpers and deploy scripts)
+├─ src/
+│  ├─ main.ts
+│  ├─ app.module.ts
+│  ├─ app.controller.ts
+│  ├─ app.service.ts
+│  ├─ abis/                 # ABI JSONs for smart contracts
+│  ├─ config/               # configuration and env mappings
+│  ├─ common/               # shared DTOs, pipes, guards
+│  ├─ cache/                # in-memory / cache helpers
+│  ├─ modules/
+│  │  ├─ auth/              # nonce, wallet-login, JWT guards
+│  │  ├─ notification/      # notification.gateway.ts, persistence + metrics
+│  │  ├─ swap/              # swap lifecycle and APIs
+│  │  ├─ orderbook/         # order submission, market deltas
+│  │  ├─ starknet/          # Starknet clients, contracts, proxies
+│  │  ├─ bitcoin/           # bitcoin-controller, vault service, providers
+│  │  ├─ relayer/           # relayer + watchtower services
+│  │  ├─ wallet/            # wallet helpers and management
+│  │  └─ zk/                # zk-related helpers & verifiers
+│  ├─ queue/                # Redis queue processors and workers
+│  └─ modules/*/            # other domain modules
+├─ docs/                    # mobile and developer docs (e.g., realtime examples)
+├─ test/                    # jest tests and e2e specs
+└─ tsconfig.json
+```
+
 ## Notifications, delivery and retries
 - Notifications are persisted (Postgres) and attempted over WebSocket. Delivery attempts are tracked in `notification_metrics`.
 - Failed deliveries are enqueued to Redis (`queue:notification_retry`) and processed by a background worker which retries up to `NOTIFICATION_MAX_RETRY_ATTEMPTS`.

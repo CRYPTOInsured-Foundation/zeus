@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Animated, Image, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path, Circle, G, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { useWalletStore } from '@/services/stateStore';
+import { useWalletStore, useAuthStore, useNotificationStore } from '@/services/stateStore';
+import { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 const ThunderBolt = () => (
@@ -21,18 +22,42 @@ const ShieldIcon = () => (
 const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const { starknetAddress, bitcoinAddress } = useWalletStore();
+  const { restoreToken } = useAuthStore();
+  const { fetchInbox, inbox } = useNotificationStore();
+  useEffect(() => {
+    // restore auth and fetch notifications on mount
+    restoreToken().catch(() => {});
+    fetchInbox().catch(() => {});
+  }, []);
+  const unreadCount = (inbox || []).filter((i: any) => !i.read).length;
   const [isRevealed, setIsRevealed] = useState(false);
+
+  const logoSource = require('../../assets/zeus_logo.png');
+  const { width: imgW, height: imgH } = Image.resolveAssetSource(logoSource);
+  const screenWidth = Dimensions.get('window').width;
+  const logoWidth = Math.min(180, Math.round(screenWidth * 0.36));
+  const logoHeight = Math.max(20, Math.round(logoWidth * (imgH / imgW)));
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>ZEUS</Text>
-          <View style={styles.privacyBadge}>
-            <ShieldIcon />
-            <Text style={styles.privacyText}>Quantum-Safe • STARK Active</Text>
+          {/* <Image source={logoSource} style={{ width: logoWidth, height: logoHeight }} resizeMode="contain" /> */}
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={styles.privacyBadge}>
+              <ShieldIcon />
+              <Text style={styles.privacyText}>Quantum-Safe • STARK Active</Text>
+            </View>
+            <TouchableOpacity style={{ marginLeft: 12 }} onPress={() => navigation.navigate('WalletSettings')}>
+              <Text style={{ color: '#00D4FF', fontWeight: '700' }}>Wallets</Text>
+            </TouchableOpacity>
           </View>
+        </View>
+        <View style={{ position: 'absolute', top: 24, right: 24 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('Inbox')}>
+            <Text style={{ color: '#00D4FF', fontWeight: '700' }}>Inbox{unreadCount ? ` (${unreadCount})` : ''}</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Balance Card - Treasure Chest */}

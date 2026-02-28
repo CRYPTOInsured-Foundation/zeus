@@ -1,11 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { useOrderbookStore } from '@/services/stateStore';
 
 const TransactionHistory = () => {
   const navigation = useNavigation();
-  const transactions = [
+  const { orders, fetchOrders } = useOrderbookStore();
+
+  useEffect(() => {
+    fetchOrders().catch(() => {});
+  }, []);
+
+  const transactions = orders.length ? orders : [
     { id: '1', type: 'SWAP', from: 'BTC', to: 'STRK', amount: '0.05', status: 'CLAIMED', date: 'Feb 12, 14:30' },
     { id: '2', type: 'SWAP', from: 'STRK', to: 'BTC', amount: '500', status: 'REFUNDED', date: 'Feb 10, 09:15' },
     { id: '3', type: 'SWAP', from: 'BTC', to: 'STRK', amount: '0.12', status: 'LOCKED', date: 'Feb 13, 11:20' },

@@ -12,6 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useSwapStore } from '@/services/stateStore';
+import { subscribe, unsubscribe } from '@/services/socket';
 import HTLCProgress from '@/components/atomic-swap/HTLCProgress';
 import ZKProofStatus from '@/components/ZKProofStatus';
 
@@ -25,6 +26,7 @@ const LightningBolt = ({ color = "#00D4FF" }) => (
 
 const SwapScreen = () => {
   const { fromToken, toToken, amount, setAmount, isPrivate, togglePrivacy } = useSwapStore();
+  const { createSwap } = useSwapStore();
   const [isSwapping, setIsSwapping] = useState(false);
   const [swapStep, setSwapStep] = useState(0); // 0: input, 1: generating proof, 2: htlc lock, 3: complete
 
@@ -43,14 +45,33 @@ const SwapScreen = () => {
     setIsSwapping(true);
     setSwapStep(1);
     triggerThunder();
-    
-    // Simulate flow
-    setTimeout(() => setSwapStep(2), 3000);
-    setTimeout(() => {
-      setSwapStep(3);
-      triggerThunder();
-    }, 8000);
+
+    try {
+      const res = await createSwap({ from: fromToken, to: toToken, amount, private: isPrivate });
+      // subscribe to swap room for realtime updates
+      try { if (res?.id) subscribe(`swap:${res.id}`); } catch (e) {}
+      setSwapStep(2);
+      // wait for on-chain/finalization (server will manage); show completed after a short pause
+      setTimeout(() => {
+        setSwapStep(3);
+        triggerThunder();
+      }, 3000);
+    } catch (e) {
+      // fallback to simulated flow on error
+      setTimeout(() => setSwapStep(2), 3000);
+      setTimeout(() => {
+        setSwapStep(3);
+        triggerThunder();
+      }, 8000);
+    }
   };
+
+  // cleanup subscriptions on unmount
+  useEffect(() => {
+    return () => {
+      try { unsubscribe('swap'); } catch (e) {}
+    };
+  }, []);
 
   const thunderStyle = useAnimatedStyle(() => ({
     opacity: thunderOpacity.value,

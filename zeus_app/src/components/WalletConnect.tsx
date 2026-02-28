@@ -1,5 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useWCManager } from '@/services/walletConnectWrapper';
+
+// optional api and wallet login flow can be provided by parent via onConnect
 import Svg, { Path } from 'react-native-svg';
 
 const WalletIcon = () => (
@@ -11,9 +14,29 @@ const WalletIcon = () => (
   </Svg>
 );
 
-const WalletConnect = ({ type, onConnect }: { type: 'Starknet' | 'Bitcoin', onConnect: () => void }) => {
+const WalletConnect = ({ type, onConnect }: { type: 'Starknet' | 'Bitcoin', onConnect: (connector?: any) => void }) => {
+  const { connector, connect, disconnect } = useWCManager();
+  const [loading, setLoading] = React.useState(false);
+
+  const handlePress = async () => {
+    setLoading(true);
+    try {
+      await connect();
+    } catch (e: any) {
+      // bubble up via onConnect null connector and let caller show error
+    } finally {
+      setLoading(false);
+    }
+    onConnect?.(connector);
+  };
+
+  const handleDisconnect = async () => {
+    try { await disconnect(); } catch (e) {}
+    onConnect?.(connector);
+  };
+
   return (
-    <TouchableOpacity style={styles.container} onPress={onConnect}>
+    <TouchableOpacity style={styles.container} onPress={handlePress}>
       <View style={styles.iconContainer}>
         <WalletIcon />
       </View>
@@ -24,7 +47,15 @@ const WalletConnect = ({ type, onConnect }: { type: 'Starknet' | 'Bitcoin', onCo
         </Text>
       </View>
       <View style={styles.chevron}>
-        <Text style={styles.chevronText}>→</Text>
+        {loading ? (
+          <ActivityIndicator color="#00D4FF" />
+        ) : connector?.connected ? (
+          <TouchableOpacity onPress={handleDisconnect}>
+            <Text style={[styles.chevronText, { color: '#FF6B6B' }]}>Disconnect</Text>
+          </TouchableOpacity>
+        ) : (
+          <Text style={styles.chevronText}>→</Text>
+        )}
       </View>
     </TouchableOpacity>
   );
